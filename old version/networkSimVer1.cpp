@@ -182,11 +182,11 @@ void send(Frame outFrame, Router nearestRouter) {
 	cout << "  - - - - - - - - - - - - - - - - - - - - - - - - - - - -  " << endl;
 	cout << "| Preamble | Dest. | Src. | Type | Data (IP Packet) | FCS |" << endl;
 	cout << "  - - - - - - - - - - - - - - - - - - - - - - - - - - - -  " << endl;
-	cout << "                                /                    \\    " << endl;
-	cout << "                               /                      \\   " << endl;
-	cout << "                              /                        \\  " << endl;
-	cout << "                             /                          \\ " << endl;
-	cout << "                            /                            \\" << endl;
+	cout << "                                /                    /     " << endl;
+	cout << "                               /                    /      " << endl;
+	cout << "                              /                    /       " << endl;
+	cout << "                             /                    /        " << endl;
+	cout << "                            /                    /         " << endl;
 	
 	cout << "IP Layer (abridged):" << endl;
 	cout << "  - - - - - - - - - - - - - - - - - - - - - " << endl;
