@@ -43,8 +43,8 @@ class Router {
         // Constructor
         Router (int addr) {
             address = addr;
-            connectedDevices;
-            routingTable;
+            connectedDevices = {};
+            routingTable = {};
         }
         void addDevice(int deviceAddr, int port) {
             connectedDevices[deviceAddr] = port;
@@ -92,33 +92,18 @@ void sendFrame(Frame outboundFrame, Router nearestRouter, unordered_map<int, Rou
         }
 
         if (!frameSent) {
-            // Loop through routing table entry by entry
-            for (const auto& entry : nearestRouter.routingTable) {
-                // Grab the prefix of IP addresses
-                int prefix = entry.first;
-                // if destination address is within range of prefix (0-49, 50-99, 100-149, 150-199, 200-249)
-                if (outboundFrame.destinationAddress >= prefix && outboundFrame.destinationAddress < prefix + 50) {
-                    int port = entry.second[0];
-                    int nextRouterAddr = entry.second[1];
+                int destination = outboundFrame.destinationAddress;
+                int prefix = (destination / 50) * 50;   // This rounds down to the nearest "bin" since routing table prefixes are organized into bins where 0-49 has a key of 0, 50-99 has key of 50, etc.
+                if (nearestRouter.routingTable.find(prefix) != nearestRouter.routingTable.end()) {  // If our prefix is inside the routing table, we forward to next router
+                    int port = nearestRouter.routingTable[prefix][0];
+                    int nextRouterAddr = nearestRouter.routingTable[prefix][1];
 
                     cout << "Routing to next router: " << nextRouterAddr << " via port: " << port << endl;
 
                     Router nextRouter = allRouters.at(nextRouterAddr);
                     sendFrame(outboundFrame, nextRouter, allRouters);
                 }
-                // else, if the address is > 249 (these are the "overseas addresses")
-                else if (outboundFrame.destinationAddress >= 250) {
-                    int port = entry.second[0];
-                    int nextRouterAddr = entry.second[1];
-
-                    cout << "Routing to next router: " << nextRouterAddr << " via port: " << port << endl;
-
-                    Router nextRouter = allRouters.at(nextRouterAddr);
-                    sendFrame(outboundFrame, nextRouter, allRouters);
-                }
-            }
         }
-        // need to handle invalid addresses or routes, but I think i will rewrite this function tomorrow.
     }
 }
 
@@ -153,7 +138,7 @@ int main() {
     
     localRouter.addRoute(0, {4, 10});   // To IPs 0-50, via port 4 to router 10
     localRouter.addRoute(200, {5, 139});    // To IPs 200-250, via port 5 to router 139
-    localRouter.addRoute(200, {6, 181});    // Also to 200 range IPs, via port 6 to router 181
+    localRouter.addRoute(250, {6, 181});    // To IPs 250-255, via port 6 to router 181
 
     allRouters.insert({localRouter.address, localRouter});  // Add to allRouters map (addr, Router)
 
