@@ -151,9 +151,9 @@ int main() {
     localRouter.addDevice(67, 2);  // Local Machine A: addr 67, port 2
     localRouter.addDevice(71, 3);  // Local Machine B: addr 71, port 3
     
-    localRouter.addRoute(0, {3, 10});   // To IPs 0-50, via port 3 to router 10
-    localRouter.addRoute(200, {2, 139});    // To IPs 200-250, via port 3 to router 139
-    localRouter.addRoute(200, {4, 181});    // Also to 200 range IPs, via port 4 to router 181
+    localRouter.addRoute(0, {4, 10});   // To IPs 0-50, via port 4 to router 10
+    localRouter.addRoute(200, {5, 139});    // To IPs 200-250, via port 5 to router 139
+    localRouter.addRoute(200, {6, 181});    // Also to 200 range IPs, via port 6 to router 181
 
     allRouters.insert({localRouter.address, localRouter});  // Add to allRouters map (addr, Router)
 
