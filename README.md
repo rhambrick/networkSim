@@ -40,9 +40,9 @@ Routing to next router: 90 via port: 4
 Routing to next router: 140 via port: 2
 Routing to next router: 220 via port: 1
 
-    I am device 252 and router 220 sent me: 
-    Hello, UK Server 2!
-    From machine: 52 via port: 2
+  I am device 252 and router 220 sent me: 
+  Hello, UK Server 2!
+  From machine: 52 via port: 2
 
 
 Sample output of the most complex route ^. 
