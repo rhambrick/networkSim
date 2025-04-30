@@ -3,6 +3,7 @@ This had to be extremely abstracted but the general idea is there.
 This simulation allows the user to pick a recipient (a machine with an IP address I made up for the sim) and send them some data (any text). 
 Then the simulation prints out the hops that the ethernet frame took to get to it's final destination, using hash maps for routing tables and IP prefixes arranged "geographically".
 
+```
 Ethernet Frame (abridged):
   - - - - - - - - - - - - - - - - - - -  
 | Preamble | Dest. | Src. | Data | FCS |
@@ -40,10 +41,10 @@ Routing to next router: 90 via port: 4
 Routing to next router: 140 via port: 2
 Routing to next router: 220 via port: 1
 
-  I am device 252 and router 220 sent me: 
-  Hello, UK Server 2!
-  From machine: 52 via port: 2
-
+   I am device 252 and router 220 sent me: 
+   Hello, UK Server 2!
+   From machine: 52 via port: 2
+```
 
 Sample output of the most complex route ^. 
 The frames consist of a preamble (10101010 as an example, which would allow for the recipient's clock to synchronize and also provide an easy error check), a destination address, source addr., the data (in real life these are IP packets, but in my sim it's simpler, just the ascii of the string the user inputs), and the frame check sequence (some math used to check if you received the data in whole (but in my sim there's no loss programmed... yet... the FCS is just for fun). 
