@@ -1,17 +1,28 @@
 This project is a custom-built C++ simulation of a simplified computer network, focusing on core concepts like packet framing,
 local vs. remote routing, and dynamic routing tables. It features:
+
   -Custom Frame Structure: Includes source/destination addressing, data payload, and frame check logic (simple checksum).
+  
   -Routing Logic:
+  
         Devices can be directly connected or reachable via multiple hops.
-        Routers use prefix-based routing tables (e.g., address 73 maps to prefix 50).
+        
+        Routers use prefix-based routing tables (i.e., address 73 maps to prefix 50).
+        
         Frames are routed either locally or via recursive hops through intermediary routers.
+        
   -Interactive Console Input: Users can simulate sending messages between machines, observe how the frame is forwarded, and view routing decisions.
+  
   -Hashmap-Based Data Structures:
+  
         connectedDevices maps device addresses to ports.
+        
         routingTable maps address prefixes to {port, next router} pairs.
+        
   -Binary Frame Display: Frame data is printed as binary for a more technical visual representation.
 
 This project was built to deepen understanding of packet-switched networks and routing principles. 
+
 While not intended as a full protocol implementation, it's a hands-on tool for exploring how routers forward frames and make routing decisions.
 
 ```
