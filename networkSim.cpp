@@ -79,36 +79,46 @@ void sendFrame(Frame outboundFrame, Router nearestRouter, unordered_map<int, Rou
     }
     // Everything else
     else {
+        bool frameSent = false;
         // 1) check if destination address is directly connected, if so, send it on easily
         // 2) check if destination address is in routing table range
         // 2.5) if so, forward frame out of port indicated in routing table, printing that result
         // 2.75) nearestRouter now needs to become the next router in the chain, can include this in routing table also
         // 3) print confirmation once packet is recieved (this will be removed later when we introduce some TCP stuff)
         if (nearestRouter.connectedDevices.find(outboundFrame.destinationAddress) != nearestRouter.connectedDevices.end()){
-            cout << endl << "    I am device " << outboundFrame.destinationAddress << " and router " << nearestRouter.address << " sent me: " << outboundFrame.data << " from machine: " << outboundFrame.sourceAddress << " via port: " << nearestRouter.connectedDevices[outboundFrame.destinationAddress] << endl << endl;
+            cout << endl << "    I am device " << outboundFrame.destinationAddress << " and router " << nearestRouter.address << " sent me: " << endl << "    " << outboundFrame.data << endl <<"    From machine: " << outboundFrame.sourceAddress << " via port: " << nearestRouter.connectedDevices[outboundFrame.destinationAddress] << endl << endl;
+            frameSent = true;
             return;
         }
 
-        bool routeFound = false;
-        // Loop through routing table entry by entry
-        for (const auto& entry : nearestRouter.routingTable) {
-            // Grab the prefix of IP addresses
-            int prefix = entry.first;
-            // if destination address is within range of prefix (0-49, 50-99, 100-149, 150-199, 200-249)
-            if (outboundFrame.destinationAddress >= prefix && outboundFrame.destinationAddress < prefix + 50) {
-                int port = entry.second[0];
-                int nextRouterAddr = entry.second[1];
+        if (!frameSent) {
+            // Loop through routing table entry by entry
+            for (const auto& entry : nearestRouter.routingTable) {
+                // Grab the prefix of IP addresses
+                int prefix = entry.first;
+                // if destination address is within range of prefix (0-49, 50-99, 100-149, 150-199, 200-249)
+                if (outboundFrame.destinationAddress >= prefix && outboundFrame.destinationAddress < prefix + 50) {
+                    int port = entry.second[0];
+                    int nextRouterAddr = entry.second[1];
 
-                cout << "Routing to next router: " << nextRouterAddr << " via port: " << port << endl;
-                routeFound = true;
+                    cout << "Routing to next router: " << nextRouterAddr << " via port: " << port << endl;
 
-                Router nextRouter = allRouters.at(nextRouterAddr);
-                sendFrame(outboundFrame, nextRouter, allRouters);
+                    Router nextRouter = allRouters.at(nextRouterAddr);
+                    sendFrame(outboundFrame, nextRouter, allRouters);
+                }
+                // else, if the address is > 249 (these are the "overseas addresses")
+                else if (outboundFrame.destinationAddress >= 250) {
+                    int port = entry.second[0];
+                    int nextRouterAddr = entry.second[1];
+
+                    cout << "Routing to next router: " << nextRouterAddr << " via port: " << port << endl;
+
+                    Router nextRouter = allRouters.at(nextRouterAddr);
+                    sendFrame(outboundFrame, nextRouter, allRouters);
+                }
             }
         }
-        if (!routeFound) {
-            cout << "No route found to address: " << outboundFrame.destinationAddress << endl;
-        }
+        // need to handle invalid addresses or routes, but I think i will rewrite this function tomorrow.
     }
 }
 
@@ -132,24 +142,56 @@ int main() {
     cout << "Your machine: " << endl;
     cout << "Address: 52 | Connected to router @ addr: 89" << endl << endl;
 
-    // Initialize routers
+    // Initialize routers | POSSIBLE ADDRESSES: CA: 0-49, TX: 50-99, IL: 100-149, FL: 150-199, NY: 200-249
     unordered_map<int, Router> allRouters;  // list of routers for routing tables (addr, Router)
 
     Router localRouter(89); // Local router addr 89
+
     localRouter.addDevice(52, 1);  // User's Machine, port 1
     localRouter.addDevice(67, 2);  // Local Machine A: addr 67, port 2
     localRouter.addDevice(71, 3);  // Local Machine B: addr 71, port 3
     
     localRouter.addRoute(0, {3, 10});   // To IPs 0-50, via port 3 to router 10
+    localRouter.addRoute(200, {2, 139});    // To IPs 200-250, via port 3 to router 139
+    localRouter.addRoute(200, {4, 181});    // Also to 200 range IPs, via port 4 to router 181
 
     allRouters.insert({localRouter.address, localRouter});  // Add to allRouters map (addr, Router)
 
     Router CA(10);  // CA Router addr. 10
-
     CA.addDevice(6, 1); // CA machine A: addr 6, port 1
-    CA.addDevice(19,2); // CA machine B: addr. 19, port 2
-
+    CA.addDevice(19, 2); // CA machine B: addr. 19, port 2
     allRouters.insert({CA.address, CA});
+
+    Router IL(139); // IL Router addr. 139
+    IL.addRoute(200, {3, 219}); // To IPs 200-249, via port 3 to router 219
+    allRouters.insert({IL.address, IL});
+
+    Router FL(181); // FL Router addr. 181
+    FL.addRoute(200, {3, 219}); // To IPs 200-249, via port 3 to router 219
+    FL.addRoute(250, {4, 11}); // To IPs 250-255, via port 4 to router 11 overseas
+    allRouters.insert({FL.address, FL});
+
+    Router NY(219); // NY Router addr. 219
+    NY.addDevice(206, 4);   // NY machine A: addr 206 port 4
+    NY.addDevice(230, 3);   // NY machine B: addr 230 port 3
+    allRouters.insert({NY.address, NY});
+
+    Router PO(11);    // PO (oversea) Router addr. 11
+    PO.addRoute(250, {4, 90});  // To IPs 250-255, via port 2 to router 90
+    allRouters.insert({PO.address, PO});
+
+    Router SP(90);    // SP (oversea) Router addr. 90
+    SP.addRoute(250, {2, 140}); // To IPs 250-255, via port 2 to router 140
+    allRouters.insert({SP.address, SP});
+
+    Router FR(140);    // FR (oversea) Router addr. 140
+    FR.addRoute(250, {1, 220}); // To IPs 250-255, via port 1 to router 220
+    allRouters.insert({FR.address, FR});
+
+    Router UK(220);    // UK (oversea) Router addr. 220
+    UK.addDevice(250, 1); // NY machine A: addr 206 port 1
+    UK.addDevice(252, 2); // UK machine B: addr 206 port 2
+    allRouters.insert({UK.address, UK});
 
     // Broadcasting to discover who else is connected to the local network
     cout << "Initializing network with broadcast..." << endl;
@@ -160,7 +202,11 @@ int main() {
     // DNS printout (sometime soon a "query nearest router" will be used)
     unordered_map<string, int> dnsTable = {
         {"CA-server-1", 6},
-        {"CA-server-2", 19}
+        {"CA-server-2", 19},
+        {"NY-server-1", 206},
+        {"NY-server-2", 230},
+        {"UK-server-1", 250},
+        {"UK-server-2", 252}
     };
 
     printDNS(dnsTable);
