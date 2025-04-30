@@ -6,6 +6,7 @@
         "ostream": "cpp",
         "iostream": "cpp",
         "unordered_map": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "limits": "cpp"
     }
 }
