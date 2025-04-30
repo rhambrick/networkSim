@@ -5,19 +5,19 @@ local vs. remote routing, and dynamic routing tables. It features:
   
   -Routing Logic:
   
-        Devices can be directly connected or reachable via multiple hops.
+      Devices can be directly connected or reachable via multiple hops.
         
-        Routers use prefix-based routing tables (i.e., address 73 maps to prefix 50).
+      Routers use prefix-based routing tables (i.e., address 73 maps to prefix 50).
         
-        Frames are routed either locally or via recursive hops through intermediary routers.
+      Frames are routed either locally or via recursive hops through intermediary routers.
         
   -Interactive Console Input: Users can simulate sending messages between machines, observe how the frame is forwarded, and view routing decisions.
   
   -Hashmap-Based Data Structures:
   
-        connectedDevices maps device addresses to ports.
+      connectedDevices maps device addresses to ports.
         
-        routingTable maps address prefixes to {port, next router} pairs.
+      routingTable maps address prefixes to {port, next router} pairs.
         
   -Binary Frame Display: Frame data is printed as binary for a more technical visual representation.
 
